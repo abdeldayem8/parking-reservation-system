@@ -7,7 +7,7 @@ const GatesList = () => {
   // Handle error state with proper error message
   if (isError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Failed to Load Gates</h2>
