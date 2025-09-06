@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useGateDetails, useZones, useCheckin } from "./index";
 import { WS_URL } from "../../Config/Config";
 import { createGateWebSocket } from "../../services/ws";
+import { useTicketStore } from "../../store/ticket";
 
 export const useGateDetailsPage = () => {
   const { gateId } = useParams<{ gateId: string }>();
@@ -12,6 +13,9 @@ export const useGateDetailsPage = () => {
   const { data: gate, isLoading: gateLoading, error: gateError } = useGateDetails(gateId || "");
   const { data: zones, isLoading: zonesLoading, error: zonesError } = useZones(gateId || "");
   const checkinMutation = useCheckin();
+  
+  // Ticket store
+  const { setTicket: setStoredTicket } = useTicketStore();
   
   // Local state
   const [tab, setTab] = useState<'visitor' | 'subscriber'>('visitor');
@@ -129,6 +133,19 @@ export const useGateDetailsPage = () => {
 
     try {
       const result = await checkinMutation.mutateAsync(payload);
+      
+      // Save ticket to Zustand store
+      const ticketToStore = {
+        id: result.ticket.id,
+        type: result.ticket.type || (tab === 'visitor' ? 'visitor' : 'subscriber'),
+        gateId: result.ticket.gateId,
+        zoneId: result.ticket.zoneId,
+        checkinAt: result.ticket.checkinAt,
+        checkoutAt: result.ticket.checkoutAt || null,
+        subscriptionId: result.ticket.subscriptionId || (tab === 'subscriber' ? subscriptionId : null),
+      };
+      setStoredTicket(ticketToStore);
+      
       setTicket(result.ticket);
       setTicketOpen(true);
       setSelectedZoneId(null);

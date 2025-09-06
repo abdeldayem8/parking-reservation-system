@@ -1,27 +1,43 @@
 import React, { useState } from 'react';
 import { useCheckout } from '../Hooks/useTickets';
 import { useSubscription } from '../Hooks/useSubscriptions';
+import { useTicketStore } from '../../store/ticket';
 
 type CheckoutStep = 'lookup' | 'subscription' | 'checkout' | 'confirmation';
 
 interface BreakdownSegment {
-  rateMode: 'normal' | 'special';
+  from: string;
+  to: string;
   hours: number;
+  rateMode: 'normal' | 'special';
   rate: number;
   amount: number;
 }
 
+interface ZoneState {
+  id: string;
+  name: string;
+  categoryId: string;
+  gateIds: string[];
+  totalSlots: number;
+  occupied: number;
+  free: number;
+  reserved: number;
+  availableForVisitors: number;
+  availableForSubscribers: number;
+  rateNormal: number;
+  rateSpecial: number;
+  open: boolean;
+}
+
 interface CheckoutData {
-  breakdown: BreakdownSegment[];
+  ticketId: string;
+  checkinAt: string;
+  checkoutAt: string;
   durationHours: number;
-  totalAmount: number;
-  ticket: {
-    id: string;
-    gateId: string;
-    zoneId: string;
-    checkinAt: string;
-    subscriptionId?: string;
-  };
+  breakdown: BreakdownSegment[];
+  amount: number;
+  zoneState: ZoneState;
 }
 
 interface SubscriptionData {
@@ -49,8 +65,9 @@ export const useCheckpointPage = () => {
 
   // Hooks
   const checkoutMutation = useCheckout();
+  const { ticket: storedTicket, clearTicket, updateCheckout } = useTicketStore();
   const { data: subscription, isLoading: isSubscriptionLoading } = useSubscription(
-    checkoutData?.ticket.subscriptionId || ''
+    storedTicket?.subscriptionId || ''
   );
 
   // Handle ticket lookup and initial checkout
@@ -64,13 +81,9 @@ export const useCheckpointPage = () => {
 
       setCheckoutData(result);
       
-      // Check if this is a subscriber ticket
-      if (result.ticket.subscriptionId) {
-        setCurrentStep('subscription');
-        setSubscriptionData(subscription || null);
-      } else {
-        setCurrentStep('checkout');
-      }
+      // For now, we'll go directly to checkout since the new API response
+      // doesn't include subscription information in the initial response
+      setCurrentStep('checkout');
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 
                           error.message || 
@@ -92,10 +105,15 @@ export const useCheckpointPage = () => {
     setError('');
 
     try {
-      await checkoutMutation.mutateAsync({
-        ticketId: checkoutData.ticket.id,
+      const result = await checkoutMutation.mutateAsync({
+        ticketId: checkoutData.ticketId,
         forceConvertToVisitor: plateMatchStatus === 'mismatch'
       });
+
+      // Update checkout time in store
+      if (storedTicket) {
+        updateCheckout(result.checkoutAt || new Date().toISOString());
+      }
 
       setCurrentStep('confirmation');
     } catch (error: any) {
@@ -114,9 +132,14 @@ export const useCheckpointPage = () => {
 
     try {
       const result = await checkoutMutation.mutateAsync({
-        ticketId: checkoutData.ticket.id,
+        ticketId: checkoutData.ticketId,
         forceConvertToVisitor: true
       });
+
+      // Update checkout time in store
+      if (storedTicket) {
+        updateCheckout(result.checkoutAt || new Date().toISOString());
+      }
 
       setCheckoutData(result);
       setCurrentStep('confirmation');
@@ -135,16 +158,19 @@ export const useCheckpointPage = () => {
     setSubscriptionData(null);
     setPlateMatchStatus('pending');
     setError('');
+    // Clear ticket from store after successful checkout
+    clearTicket();
   };
 
   // Update subscription data when subscription query resolves
   React.useEffect(() => {
-    if (subscription && checkoutData?.ticket.subscriptionId) {
+    if (subscription && storedTicket?.subscriptionId) {
       setSubscriptionData(subscription);
     }
-  }, [subscription, checkoutData?.ticket.subscriptionId]);
+  }, [subscription, storedTicket?.subscriptionId]);
 
-  const isSubscriber = checkoutData?.ticket.subscriptionId && subscriptionData;
+  // Check if current ticket is a subscriber ticket
+  const isSubscriber = storedTicket?.type === 'subscriber' && storedTicket?.subscriptionId;
   const isLoading = checkoutMutation.isPending || isSubscriptionLoading;
 
   return {

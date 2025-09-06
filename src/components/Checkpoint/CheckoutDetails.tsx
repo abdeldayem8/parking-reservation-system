@@ -1,23 +1,38 @@
 import React from 'react';
 
 interface BreakdownSegment {
-  rateMode: 'normal' | 'special';
+  from: string;
+  to: string;
   hours: number;
+  rateMode: 'normal' | 'special';
   rate: number;
   amount: number;
 }
 
+interface ZoneState {
+  id: string;
+  name: string;
+  categoryId: string;
+  gateIds: string[];
+  totalSlots: number;
+  occupied: number;
+  free: number;
+  reserved: number;
+  availableForVisitors: number;
+  availableForSubscribers: number;
+  rateNormal: number;
+  rateSpecial: number;
+  open: boolean;
+}
+
 interface CheckoutData {
-  breakdown: BreakdownSegment[];
+  ticketId: string;
+  checkinAt: string;
+  checkoutAt: string;
   durationHours: number;
-  totalAmount: number;
-  ticket: {
-    id: string;
-    gateId: string;
-    zoneId: string;
-    checkinAt: string;
-    subscriptionId?: string;
-  };
+  breakdown: BreakdownSegment[];
+  amount: number;
+  zoneState: ZoneState;
 }
 
 interface Props {
@@ -56,8 +71,8 @@ const CheckoutDetails: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <div className="text-center mb-6">
+    <div className="max-w-4xl mx-auto p-6">
+      <div className="text-center mb-8">
         <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-100 mb-4">
           <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -69,73 +84,115 @@ const CheckoutDetails: React.FC<Props> = ({
         </p>
       </div>
 
-      {/* Ticket Information */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Ticket Information</h3>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-600">Ticket ID:</span>
-            <p className="font-mono font-semibold">{checkoutData.ticket.id}</p>
-          </div>
-          <div>
-            <span className="text-gray-600">Gate:</span>
-            <p className="font-semibold">{checkoutData.ticket.gateId}</p>
-          </div>
-          <div>
-            <span className="text-gray-600">Zone:</span>
-            <p className="font-semibold">{checkoutData.ticket.zoneId}</p>
-          </div>
-          <div>
-            <span className="text-gray-600">Check-in Time:</span>
-            <p className="font-semibold">{new Date(checkoutData.ticket.checkinAt).toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Duration */}
-      <div className="bg-blue-50 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Parking Duration</h3>
-            <p className="text-gray-600">Total time parked</p>
-          </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-blue-600">{formatDuration(checkoutData.durationHours)}</p>
-            <p className="text-sm text-gray-500">{checkoutData.durationHours.toFixed(2)} hours</p>
+      {/* Grid Layout for Ticket Info and Zone Info */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Ticket Information Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Ticket Information</h3>
+          <div className="space-y-3">
+            <div>
+              <span className="text-gray-600 text-sm">Ticket ID:</span>
+              <p className="font-mono font-semibold text-gray-900">{checkoutData.ticketId}</p>
+            </div>
+            <div>
+              <span className="text-gray-600 text-sm">Check-in Time:</span>
+              <p className="font-semibold text-gray-900">{new Date(checkoutData.checkinAt).toLocaleString()}</p>
+            </div>
+            <div>
+              <span className="text-gray-600 text-sm">Checkout Time:</span>
+              <p className="font-semibold text-gray-900">{new Date(checkoutData.checkoutAt).toLocaleString()}</p>
+            </div>
+            <div>
+              <span className="text-gray-600 text-sm">Duration:</span>
+              <p className="font-semibold text-blue-600">{formatDuration(checkoutData.durationHours)}</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Breakdown */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Rate Breakdown</h3>
-        <div className="space-y-3">
-          {checkoutData.breakdown.map((segment, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className={`w-3 h-3 rounded-full mr-3 ${
-                  segment.rateMode === 'special' ? 'bg-orange-500' : 'bg-blue-500'
-                }`}></div>
-                <div>
-                  <p className="font-medium text-gray-900 capitalize">{segment.rateMode} Rate</p>
-                  <p className="text-sm text-gray-600">
-                    {formatDuration(segment.hours)} @ {formatCurrency(segment.rate)}/hour
-                  </p>
-                </div>
+        {/* Zone Information Card */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Zone Information</h3>
+          <div className="space-y-3">
+            <div>
+              <span className="text-gray-600 text-sm">Zone Name:</span>
+              <p className="font-semibold text-gray-900">{checkoutData.zoneState.name}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-gray-600 text-sm">Total Slots:</span>
+                <p className="font-semibold text-gray-900">{checkoutData.zoneState.totalSlots}</p>
               </div>
-              <div className="text-right">
-                <p className="font-semibold text-gray-900">{formatCurrency(segment.amount)}</p>
+              <div>
+                <span className="text-gray-600 text-sm">Occupied:</span>
+                <p className="font-semibold text-red-600">{checkoutData.zoneState.occupied}</p>
+              </div>
+              <div>
+                <span className="text-gray-600 text-sm">Free:</span>
+                <p className="font-semibold text-green-600">{checkoutData.zoneState.free}</p>
+              </div>
+              <div>
+                <span className="text-gray-600 text-sm">Reserved:</span>
+                <p className="font-semibold text-yellow-600">{checkoutData.zoneState.reserved}</p>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Total */}
-      <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-gray-900">Total Amount</h3>
-          <p className="text-3xl font-bold text-green-600">{formatCurrency(checkoutData.totalAmount)}</p>
+      {/* Breakdown Table */}
+      <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Rate Breakdown</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate Mode</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {checkoutData.breakdown.map((segment, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(segment.from).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {new Date(segment.to).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {segment.hours.toFixed(4)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      segment.rateMode === 'special' 
+                        ? 'bg-orange-100 text-orange-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {segment.rateMode}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatCurrency(segment.rate)}/hr
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    {formatCurrency(segment.amount)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Total Amount - Highlighted */}
+      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Total Amount</h3>
+          <p className="text-4xl font-bold text-green-600">{formatCurrency(checkoutData.amount)}</p>
         </div>
       </div>
 
