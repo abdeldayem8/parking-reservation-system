@@ -21,20 +21,29 @@ type Props = {
   selected: boolean;
   onSelect: (zoneId: string) => void;
   isVisitor?: boolean; // Add this to know which tab is active
+  subscriptionData?: any; // Add subscription data for category checking
 }
 
-const ZoneCard: React.FC<Props> = ({ zone, disabled, selected, onSelect, isVisitor = true }) => {
+const ZoneCard: React.FC<Props> = ({ zone, disabled, selected, onSelect, isVisitor = true, subscriptionData }) => {
+  // Check if subscriber's category is allowed for this zone
+  const isCategoryAllowed = isVisitor || !subscriptionData || zone.categoryId === subscriptionData.category;
+  
+  // Determine if zone should be disabled for subscribers
+  const isSubscriberDisabled = !isVisitor && (!subscriptionData?.active || !isCategoryAllowed);
+  
+  // Get the actual disabled state
+  const isActuallyDisabled = disabled || isSubscriberDisabled;
   return (
     <button
-      onClick={() => !disabled && onSelect(zone.id)}
-      disabled={disabled}
+      onClick={() => !isActuallyDisabled && onSelect(zone.id)}
+      disabled={isActuallyDisabled}
       className={`
         w-full text-left p-4 rounded-xl border-2 transition-all duration-200
         ${selected 
           ? 'border-blue-500 bg-blue-50 shadow-lg' 
           : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
         }
-        ${disabled 
+        ${isActuallyDisabled 
           ? 'opacity-60 cursor-not-allowed bg-gray-50' 
           : 'cursor-pointer hover:scale-105'
         }
@@ -45,6 +54,11 @@ const ZoneCard: React.FC<Props> = ({ zone, disabled, selected, onSelect, isVisit
         <div>
           <h3 className="font-bold text-lg text-gray-900">{zone.name}</h3>
           <p className="text-sm text-gray-600">Category: {zone.categoryId}</p>
+          {!isVisitor && subscriptionData && !isCategoryAllowed && (
+            <p className="text-xs text-red-600 font-medium mt-1">
+              ⚠️ Category not allowed for your subscription
+            </p>
+          )}
         </div>
         <div className={`
           px-3 py-1 rounded-full text-xs font-semibold

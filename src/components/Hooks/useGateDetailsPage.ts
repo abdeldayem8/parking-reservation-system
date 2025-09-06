@@ -19,6 +19,7 @@ export const useGateDetailsPage = () => {
   const [subscriptionId, setSubscriptionId] = useState<string>("");
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [subscriptionError, setSubscriptionError] = useState<string>("");
+  const [isVerifyingSubscription, setIsVerifyingSubscription] = useState(false);
   const [ticket, setTicket] = useState<any>(null);
   const [ticketOpen, setTicketOpen] = useState(false);
   const [wsStatus, setWsStatus] = useState<'connecting' | 'open' | 'closed' | 'error'>('closed');
@@ -32,6 +33,16 @@ export const useGateDetailsPage = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Reset subscription data when switching tabs
+  useEffect(() => {
+    if (tab === 'visitor') {
+      setSubscriptionId("");
+      setSubscriptionData(null);
+      setSubscriptionError("");
+      setSelectedZoneId(null);
+    }
+  }, [tab]);
 
   // Update zones map when zones data changes
   useEffect(() => {
@@ -74,17 +85,25 @@ export const useGateDetailsPage = () => {
     
     try {
       setSubscriptionError("");
+      setIsVerifyingSubscription(true);
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL}/subscriptions/${subscriptionId}`);
       if (response.ok) {
         const data = await response.json();
         setSubscriptionData(data);
+        
+        // Clear any previous zone selection when subscription changes
+        setSelectedZoneId(null);
       } else {
-        setSubscriptionError("Invalid subscription ID");
+        const errorData = await response.json().catch(() => ({}));
+        setSubscriptionError(errorData.message || "Invalid subscription ID");
         setSubscriptionData(null);
       }
     } catch (error) {
-      setSubscriptionError("Failed to verify subscription");
+      setSubscriptionError("Failed to verify subscription. Please try again.");
       setSubscriptionData(null);
+    } finally {
+      setIsVerifyingSubscription(false);
     }
   };
 
@@ -118,14 +137,30 @@ export const useGateDetailsPage = () => {
       setSubscriptionError("");
     } catch (error: any) {
       console.error('Check-in failed:', error);
+      // Error will be handled by the mutation's error state
     }
   };
 
   // Computed values
   const zoneList = Object.values(zonesMap) as any[];
   const isVisitor = tab === 'visitor';
-  const canSelect = (z: any) => z.open && (!isVisitor || z.availableForVisitors > 0);
-  const isCheckinDisabled = !selectedZoneId || checkinMutation.isPending || (tab === 'subscriber' && !subscriptionData);
+  
+  const canSelect = (z: any) => {
+    if (!z.open) return false;
+    
+    if (isVisitor) {
+      return z.availableForVisitors > 0;
+    } else {
+      // For subscribers, check if subscription is active and category matches
+      if (!subscriptionData?.active) return false;
+      if (z.availableForSubscribers <= 0) return false;
+      return z.categoryId === subscriptionData.category;
+    }
+  };
+  
+  const isCheckinDisabled = !selectedZoneId || 
+    checkinMutation.isPending || 
+    (tab === 'subscriber' && (!subscriptionData || !subscriptionData.active));
 
   return {
     // Data
@@ -142,6 +177,7 @@ export const useGateDetailsPage = () => {
     subscriptionId,
     subscriptionData,
     subscriptionError,
+    isVerifyingSubscription,
     
     // Loading & Error states
     isLoading: gateLoading || zonesLoading,

@@ -26,6 +26,7 @@ const GateDetails = () => {
     subscriptionId,
     subscriptionData,
     subscriptionError,
+    isVerifyingSubscription,
     
     // Loading & Error states
     isLoading,
@@ -81,6 +82,7 @@ const GateDetails = () => {
               onVerify={verifySubscription}
               subscriptionData={subscriptionData}
               subscriptionError={subscriptionError}
+              isLoading={isVerifyingSubscription}
             />
           )}
 
@@ -99,6 +101,7 @@ const GateDetails = () => {
                   selected={selectedZoneId === zone.id} 
                   onSelect={setSelectedZoneId}
                   isVisitor={tab === 'visitor'}
+                  subscriptionData={subscriptionData}
                 />
               ))}
             </div>
@@ -117,7 +120,8 @@ const GateDetails = () => {
       <TicketModal 
         open={ticketOpen} 
         onClose={() => setTicketOpen(false)} 
-        ticket={ticket} 
+        ticket={ticket}
+        subscriptionData={subscriptionData}
       />
     </div>
   );

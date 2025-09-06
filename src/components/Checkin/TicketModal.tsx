@@ -9,10 +9,12 @@ type Props = {
     gateId: string;
     zoneId: string;
     checkinAt: string;
+    subscriptionId?: string;
   } | null;
+  subscriptionData?: any;
 }
 
-const TicketModal: React.FC<Props> = ({ open, onClose, ticket }) => {
+const TicketModal: React.FC<Props> = ({ open, onClose, ticket, subscriptionData }) => {
   if (!open || !ticket) return null;
 
   const handlePrint = () => {
@@ -64,6 +66,35 @@ const TicketModal: React.FC<Props> = ({ open, onClose, ticket }) => {
                   <span className="text-gray-600">Check-in Time:</span>
                   <span className="font-semibold">{new Date(ticket.checkinAt).toLocaleString()}</span>
                 </div>
+                
+                {/* Subscriber Information */}
+                {ticket.subscriptionId && subscriptionData && (
+                  <>
+                    <div className="border-t border-gray-200 pt-3 mt-3">
+                      <h5 className="text-sm font-semibold text-gray-700 mb-2">Subscriber Details</h5>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Name:</span>
+                          <span className="font-semibold">{subscriptionData.userName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Subscription ID:</span>
+                          <span className="font-mono text-sm">{ticket.subscriptionId}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Category:</span>
+                          <span className="font-semibold">{subscriptionData.category}</span>
+                        </div>
+                        {subscriptionData.cars && subscriptionData.cars.length > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Vehicle:</span>
+                            <span className="font-semibold">{subscriptionData.cars[0].plate}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
