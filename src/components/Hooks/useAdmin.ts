@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "../../services/api";
+import { API_URL } from "../../Config/Config";
+import { endpoints } from "../../Config/endpoints";
+import { useAuthStore } from "../../store/auth";
 
 // Categories
 export const useAdminCategories = () => {
@@ -296,9 +299,16 @@ export const useDeleteSubscription = () => {
 
 // Reports
 export const useParkingStateReport = () => {
+  const token = useAuthStore((s) => s.token);
   return useQuery({
     queryKey: ["admin", "parkingState"],
-    queryFn: adminApi.getParkingStateReport,
+    queryFn: async () => {
+      const { data } = await API_URL.get(endpoints.admin.reports.parkingState, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
+      return data;
+    },
+    enabled: !!token,
   });
 };
 
