@@ -2,7 +2,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './index.css'
 import Navbar from './components/Common/Navbar'
 import GateDetails from './pages/GateDetails'
-import Admin from './pages/Admin'
+import AdminLogin from './pages/AdminLogin'
+import AdminEmployees from './pages/AdminEmployees'
+import AdminReports from './pages/AdminReports'
+import AdminControl from './pages/AdminControl'
 import Checkpoint from './pages/checkPoint'
 import GatesList from './pages/GatesList'
 import { ProtectedRoute } from './components/Auth'
@@ -25,11 +28,29 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          {/* Admin routes */}
+          <Route path="/admin" element={<AdminLogin />} />
           <Route 
-            path="/admin" 
+            path="/admin/employees" 
             element={
               <ProtectedRoute requiredRole="admin">
-                <Admin />
+                <AdminEmployees />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/reports" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminReports />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/control" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminControl />
               </ProtectedRoute>
             } 
           />

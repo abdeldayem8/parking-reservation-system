@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuthStore } from '../../store/auth';
-import EmployeeLogin from './EmployeeLogin';
+import { Navigate, useLocation } from 'react-router-dom';
 
 interface Props {
   children: React.ReactNode;
@@ -9,6 +9,7 @@ interface Props {
 
 const ProtectedRoute: React.FC<Props> = ({ children, requiredRole }) => {
   const { isAuthenticated, user } = useAuthStore();
+  const location = useLocation();
 
   const handleLoginSuccess = () => {
     // Login success is handled by the auth store
@@ -17,7 +18,10 @@ const ProtectedRoute: React.FC<Props> = ({ children, requiredRole }) => {
 
   // Check if user is authenticated
   if (!isAuthenticated) {
-    return <EmployeeLogin onLoginSuccess={handleLoginSuccess} />;
+    // If required role is admin, send to /admin login. Otherwise, to /checkpoint.
+    const isAdminRoute = requiredRole === 'admin';
+    const redirectTo = isAdminRoute ? '/admin' : '/checkpoint';
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   // Check if user has the required role
