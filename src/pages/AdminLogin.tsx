@@ -8,9 +8,9 @@ const AdminLogin: React.FC = () => {
 	const { user } = useAuthStore();
 
 	const handleSuccess = () => {
-		// Navigate to a default admin page after login
+		// Navigate to the admin dashboard after login
 		if (user?.role === 'admin') {
-			navigate('/admin/reports');
+			navigate('/admin');
 		} else {
 			navigate('/');
 		}

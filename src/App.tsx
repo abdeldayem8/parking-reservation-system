@@ -3,6 +3,7 @@ import './index.css'
 import Navbar from './components/Common/Navbar'
 import GateDetails from './pages/GateDetails'
 import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
 import AdminEmployees from './pages/AdminEmployees'
 import AdminReports from './pages/AdminReports'
 import AdminControl from './pages/AdminControl'
@@ -29,15 +30,17 @@ function App() {
             } 
           />
           {/* Admin routes */}
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route 
-            path="/admin/employees" 
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminEmployees />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/admin" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/employees" element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminEmployees />
+            </ProtectedRoute>
+          } />
           <Route 
             path="/admin/reports" 
             element={
