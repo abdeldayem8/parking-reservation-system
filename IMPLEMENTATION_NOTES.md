@@ -35,7 +35,7 @@ src/components/
 - **Custom hooks** separate business logic from UI
 - **Pages are UI-only** - all logic moved to hooks
 - **Reusable components** in UI folder for DRY principles
-
+i want this file 
 ### 3. **API Client Architecture**
 
 **Implementation**:

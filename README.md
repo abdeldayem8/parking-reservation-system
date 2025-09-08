@@ -17,7 +17,7 @@ This frontend application provides a complete user interface for managing parkin
 
 ## 🛠️ Tech Stack
 
-- **Frontend Framework**: React 18 with TypeScript
+- **Frontend Framework**: React 19 with TypeScript
 - **State Management**: React Query for server state
 - **Styling**: Tailwind CSS
 - **HTTP Client**: Axios
@@ -30,48 +30,108 @@ This frontend application provides a complete user interface for managing parkin
 ```
 src/
 ├── components/           # Reusable UI components
-│   ├── Gate/            # Gate-related components
-│   │   ├── GateCard.tsx
-│   │   ├── GateHeader.tsx
-│   │   ├── GateListUi.tsx
-│   │   └── ZoneCard.tsx
+│   ├── Admin/           # Admin-specific components
+│   │   ├── AuditLog.tsx
+│   │   ├── CategoryRateManager.tsx
+│   │   ├── ControlPanelZones.tsx
+│   │   ├── ParkingStateSummary.tsx
+│   │   ├── ParkingStateTable.tsx
+│   │   ├── RushHoursManager.tsx
+│   │   └── VacationsManager.tsx
+|   |   └──  ZoneCard.tsx
+│   ├── Auth/            # Authentication components
+│   │   ├── EmployeeLogin.tsx
+│   │   ├── LoginForm.tsx
+│   │   └── ProtectedRoute.tsx
 │   ├── Checkin/         # Check-in flow components
 │   │   ├── CheckinButton.tsx
 │   │   ├── CheckinTabs.tsx
 │   │   ├── SubscriptionInput.tsx
 │   │   └── TicketModal.tsx
+│   ├── Checkpoint/      # Checkout flow components
+│   │   ├── CheckoutConfirmation.tsx
+│   │   ├── CheckoutDetails.tsx
+│   │   ├── SubscriptionDetails.tsx
+│   │   ├── TicketLookup.tsx
+│   │   └── useCheckpointPage.ts
+│   ├── Common/          # Common/shared components
+│   │   └── Navbar.tsx
+│   │   └── Loadar.tsx
+│   ├── Gate/            # Gate-related components
+│   │   ├── GateCard.tsx
+│   │   ├── GateHeader.tsx
+│   │   ├── GateListUi.tsx
+│   │   └── ZoneCard.tsx
 │   ├── UI/              # Generic UI components
+│   │   ├── EmptyState.tsx
 │   │   ├── ErrorDisplay.tsx
 │   │   ├── ErrorState.tsx
 │   │   ├── LoadingState.tsx
 │   │   ├── NotFoundState.tsx
-│   │   ├── SkeletonCard.tsx
-│   │   └── EmptyState.tsx
-│   ├── Admin/           # Admin-specific components
-│   │   └── AdminReports.tsx
+│   │   ├── PageHeader.tsx
+│   │   └── SkeletonCard.tsx
 │   └── Hooks/           # Custom React hooks
-│       ├── useAuth.ts
 │       ├── useAdmin.ts
+│       ├── useAuth.ts
+│       ├── useGateDetailsPage.ts
 │       ├── useMasterData.ts
 │       ├── useSubscriptions.ts
 │       ├── useTickets.ts
-│       ├── useGateDetailsPage.ts
 │       └── index.ts
 ├── pages/               # Page components
-│   ├── Admin.tsx
+│   ├── AdminControl.tsx
+│   ├── AdminDashboard.tsx
+│   ├── AdminEmployees.tsx
+│   ├── AdminLogin.tsx
+│   ├── AdminReports.tsx
 │   ├── checkPoint.tsx
 │   ├── GateDetails.tsx
 │   └── GatesList.tsx
 ├── services/            # API and WebSocket services
 │   ├── api.ts
 │   └── ws.ts
+├── store/               # Zustand state management
+│   ├── auth.ts
+│   ├── ticket.ts
+│   └── index.ts
 ├── Config/              # Configuration files
 │   ├── Config.ts
 │   └── endpoints.ts
+├── __tests__/           # Test files
+│   └── GateScreen.test.tsx
 ├── App.tsx              # Main app component
 ├── main.tsx             # App entry point
 └── index.css            # Global styles
 ```
+
+### 📷 Screenshots
+
+The `screenshots/` folder contains visual documentation of all implemented screens:
+
+- **Gate System**:
+  - `gates-list.png` - Gates listing page with navigation cards
+  - `gate-details-visitor.png` - Gate details page (visitor flow)
+  - `gate-details-subscriber.png` - Gate details page (subscriber flow)
+  - `ticket-modal.png` - Printable ticket modal after check-in
+
+- **Checkpoint System**:
+  - `checkpoint-login.png` - Employee login screen
+  - `checkpoint-lookup.png` - Ticket lookup interface
+  - `checkout-details.png` - Checkout breakdown and payment details
+  - `checkout-confirmation.png` - Checkout confirmation screen
+
+- **Admin Dashboard**:
+  - `admin-login.png` - Admin login screen
+  - `admin-dashboard.png` - Admin dashboard with navigation cards
+  - `admin-employees.png` - Employee management screen
+  - `admin-reports.png` - Parking state reports and analytics
+  - `admin-control.png` - Control panel for zones, rates, and settings
+  - `admin-audit-log.png` - Live audit log with real-time updates
+
+- **Responsive Design**:
+  - `mobile-gates.png` - Mobile view of gates list
+  - `mobile-zone-cards.png` - Mobile view of zone selection
+  - `mobile-navbar.png` - Mobile navigation menu
 
 ## 🚀 Quick Start
 

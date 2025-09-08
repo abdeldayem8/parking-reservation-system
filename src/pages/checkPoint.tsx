@@ -9,7 +9,7 @@ import {
 } from '../components/Checkpoint';
 
 const Checkpoint: React.FC = () => {
-  const { user, logout } = useAuthStore();
+  const {  logout } = useAuthStore();
   
   // Use the custom hook for all logic
   const {
@@ -40,7 +40,6 @@ const Checkpoint: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Checkpoint System</h1>
-              <p className="text-gray-600">Employee: {user?.username}</p>
             </div>
             <button
               onClick={handleLogout}
