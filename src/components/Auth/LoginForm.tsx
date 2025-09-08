@@ -24,7 +24,12 @@ const LoginForm: React.FC<Props> = ({ title, subtitle, onSuccess }) => {
 
 		const result = await login(username, password);
 		if (result.success) {
-			onSuccess && onSuccess();
+			// Call success callback after a brief delay to ensure store is updated
+			if (onSuccess) {
+				setTimeout(() => {
+					onSuccess();
+				}, 100);
+			}
 		} else {
 			setError(result.error || 'Login failed');
 		}

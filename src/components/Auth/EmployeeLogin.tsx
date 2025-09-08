@@ -24,7 +24,10 @@ const EmployeeLogin: React.FC<Props> = ({ onLoginSuccess }) => {
     const result = await login(username, password);
     
     if (result.success) {
-      onLoginSuccess();
+      // Call success callback after a brief delay to ensure store is updated
+      setTimeout(() => {
+        onLoginSuccess();
+      }, 100);
     } else {
       setError(result.error || 'Login failed');
     }

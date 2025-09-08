@@ -152,22 +152,10 @@ export const useDeleteGate = () => {
   });
 };
 
-// Rush Hours
-export const useRushHours = () => {
-  return useQuery({
-    queryKey: ["admin", "rushHours"],
-    queryFn: adminApi.getRushHours,
-  });
-};
-
+// Rush Hours - server has no GET endpoint, only POST
 export const useCreateRushHour = () => {
-  const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: adminApi.createRushHour,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "rushHours"] });
-    },
+    mutationFn: adminApi.createAdminRushHour,
   });
 };
 
@@ -194,22 +182,10 @@ export const useDeleteRushHour = () => {
   });
 };
 
-// Vacations
-export const useVacations = () => {
-  return useQuery({
-    queryKey: ["admin", "vacations"],
-    queryFn: adminApi.getVacations,
-  });
-};
-
+// Vacations - server has no GET endpoint, only POST
 export const useCreateVacation = () => {
-  const queryClient = useQueryClient();
-  
   return useMutation({
-    mutationFn: adminApi.createVacation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "vacations"] });
-    },
+    mutationFn: adminApi.createAdminVacation,
   });
 };
 

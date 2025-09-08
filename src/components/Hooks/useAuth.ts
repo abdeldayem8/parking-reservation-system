@@ -1,30 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { authApi } from "../../services/api";
+import { useAuthStore } from "../../store/auth";
 
 export const useLogin = () => {
   const queryClient = useQueryClient();
+  const login = useAuthStore((state) => state.login);
   
   return useMutation({
-    mutationFn: authApi.login,
-    onSuccess: (data) => {
-      // Store token in localStorage 
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-      }
+    mutationFn: ({ username, password }: { username: string; password: string }) => 
+      login(username, password),
+    onSuccess: () => {
       // Invalidate and refetch user-related queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['admin'] });
     },
   });
 };
 
 export const useLogout = () => {
   const queryClient = useQueryClient();
+  const logout = useAuthStore((state) => state.logout);
   
   return useMutation({
     mutationFn: async () => {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
+      logout();
     },
     onSuccess: () => {
       queryClient.clear();

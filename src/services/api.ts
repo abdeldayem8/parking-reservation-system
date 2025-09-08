@@ -29,9 +29,9 @@ export const masterApi = {
 
 // Admin endpoints
 export const adminApi = {
-  // Categories
+  // Categories - use master endpoint since admin GET doesn't exist
   getCategories: async () => {
-    const { data } = await API_URL.get(endpoints.admin.categories);
+    const { data } = await API_URL.get('/master/categories');
     return data;
   },
   
@@ -50,9 +50,9 @@ export const adminApi = {
     return data;
   },
   
-  // Zones
+  // Zones - use master endpoint since admin zones endpoint doesn't exist
   getZones: async () => {
-    const { data } = await API_URL.get(endpoints.admin.zones);
+    const { data } = await API_URL.get('/master/zones');
     return data;
   },
   
@@ -174,6 +174,22 @@ export const adminApi = {
   // Reports
   getParkingStateReport: async () => {
     const { data } = await API_URL.get(endpoints.admin.reports.parkingState);
+    return data;
+  },
+
+  // Rush Hours - server only has POST, no GET endpoint
+  createAdminRushHour: async (rushHour: { weekDay: number; from: string; to: string }) => {
+    console.log('API call - creating rush hour:', rushHour);
+    const { data } = await API_URL.post('/admin/rush-hours', rushHour);
+    console.log('API response - rush hour created:', data);
+    return data;
+  },
+
+  // Vacations - server only has POST, no GET endpoint  
+  createAdminVacation: async (vacation: { name: string; from: string; to: string }) => {
+    console.log('API call - creating vacation:', vacation);
+    const { data } = await API_URL.post('/admin/vacations', vacation);
+    console.log('API response - vacation created:', data);
     return data;
   },
   

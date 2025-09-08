@@ -20,7 +20,7 @@ const CheckinButton: React.FC<Props> = ({ onCheckin, disabled, isLoading }) => {
             Processing...
           </span>
         ) : (
-          'Check In'
+          'GO'
         )}
       </button>
     </div>

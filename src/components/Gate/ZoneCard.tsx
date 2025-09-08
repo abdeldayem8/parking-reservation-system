@@ -72,25 +72,40 @@ const ZoneCard: React.FC<Props> = ({ zone, disabled, selected, onSelect, isVisit
       </div>
 
       {/* Availability Stats */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-gray-50 p-2 rounded-lg">
-          <div className="text-xs text-gray-600">Occupied</div>
-          <div className="font-bold text-lg text-gray-900">{zone.occupied}</div>
-        </div>
-        <div className="bg-gray-50 p-2 rounded-lg">
-          <div className="text-xs text-gray-600">Free</div>
-          <div className="font-bold text-lg text-green-600">{zone.free}</div>
-        </div>
-        <div className="bg-gray-50 p-2 rounded-lg">
-          <div className="text-xs text-gray-600">Reserved</div>
-          <div className="font-bold text-lg text-orange-600">{zone.reserved}</div>
-        </div>
-        <div className="bg-gray-50 p-2 rounded-lg">
-          <div className="text-xs text-gray-600">
-            Available {isVisitor ? '(Visitors)' : '(Subscribers)'}
+      <div className="space-y-3 mb-4">
+        {/* Basic Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="text-xs text-gray-600">Occupied</div>
+            <div className="font-bold text-lg text-gray-900">{zone.occupied}</div>
           </div>
-          <div className="font-bold text-lg text-blue-600">
-            {isVisitor ? zone.availableForVisitors : zone.availableForSubscribers}
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="text-xs text-gray-600">Free</div>
+            <div className="font-bold text-lg text-green-600">{zone.free}</div>
+          </div>
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="text-xs text-gray-600">Reserved</div>
+            <div className="font-bold text-lg text-orange-600">{zone.reserved}</div>
+          </div>
+        </div>
+        
+        {/* Availability Stats */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="text-xs text-gray-600">Available (Visitors)</div>
+            <div className={`font-bold text-lg ${
+              zone.availableForVisitors <= 0 ? 'text-red-600' : 'text-blue-600'
+            }`}>
+              {zone.availableForVisitors}
+            </div>
+          </div>
+          <div className="bg-gray-50 p-2 rounded-lg">
+            <div className="text-xs text-gray-600">Available (Subscribers)</div>
+            <div className={`font-bold text-lg ${
+              zone.availableForSubscribers <= 0 ? 'text-red-600' : 'text-blue-600'
+            }`}>
+              {zone.availableForSubscribers}
+            </div>
           </div>
         </div>
       </div>
