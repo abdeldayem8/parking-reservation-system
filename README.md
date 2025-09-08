@@ -278,31 +278,168 @@ ws.on('admin-update', (data) => {
 
 ## 🧪 Testing
 
-### Manual Testing Steps
+### Automated Tests
 
-1. **Gate Check-in Flow**
-   - Navigate to `/gate/gate_1`
-   - Switch between Visitor and Subscriber tabs
-   - Select an available zone
-   - Complete check-in process
-   - Verify ticket modal appears
+Run the test suite with:
+```bash
+npm test
+# or for specific test
+npm test -- GateScreen.test.tsx
+```
 
-2. **WebSocket Updates**
-   - Open gate details page
-   - Perform check-in/check-out from another session
-   - Verify real-time updates in zone cards
+**Key Test Coverage:**
+- ✅ GO button enable/disable based on zone selection
+- ✅ Zone card disabled when `availableForVisitors <= 0` 
+- ✅ Zone card disabled when `open === false`
+- ✅ All required zone information display
+- ✅ Click handlers and user interactions
+- ✅ Loading and error states
 
-3. **Admin Dashboard**
-   - Login as admin user
-   - Navigate to `/admin`
-   - Test zone open/close functionality
-   - Update category rates
+### Manual Verification Steps
 
-### Test Users
+#### 🎯 **1. Gate Screen - Zone Selection Flow**
 
-The backend provides seeded test users:
-- **Admin**: `admin` / `admin123`
-- **Employee**: `employee` / `employee123`
+**Test Zone Availability Logic:**
+1. Navigate to `http://localhost:5173/gate/gate_1`
+2. Verify header shows:
+   - Gate name (e.g., "Main Entrance (gate_1)")
+   - WebSocket status indicator (colored dot)
+   - Current time (updates every second)
+3. **Test Visitor Flow:**
+   - Ensure "Visitor" tab is selected
+   - Find a zone with `availableForVisitors = 0` → Should be **disabled/grayed out**
+   - Find a zone with `availableForVisitors > 0` → Should be **clickable**
+   - Select available zone → GO button should become **enabled**
+   - Click GO → Should show ticket modal
+4. **Test Closed Zone:**
+   - Look for zones with red "Closed" badge → Should be **disabled**
+
+#### 🔌 **2. WebSocket Real-time Updates**
+
+**Setup Multiple Browser Windows:**
+1. **Window 1**: Open `http://localhost:5173/gate/gate_1`
+2. **Window 2**: Open checkpoint or admin panel
+3. **Test Live Updates:**
+   - In Window 1: Watch zone availability numbers
+   - In Window 2: Perform check-in/checkout
+   - **Verify**: Window 1 shows updated availability in real-time
+   - **Verify**: WebSocket status stays "Connected" (green dot)
+
+**WebSocket Connection Test:**
+1. Open browser DevTools → Network → WS tab
+2. Navigate to gate details page
+3. **Verify**: WebSocket connection established to `ws://localhost:3000/api/v1/ws`
+4. **Verify**: Subscribe message sent: `{"type":"subscribe","payload":{"gateId":"gate_1"}}`
+5. Perform actions in another window
+6. **Verify**: Incoming `zone-update` messages in WebSocket tab
+
+#### 👤 **3. Seeded User Login & Authentication**
+
+**Admin User:**
+```
+Username: admin
+Password: admin123
+```
+1. Navigate to `http://localhost:5173/admin/login`
+2. Login with admin credentials
+3. **Verify**: Redirected to `/admin` dashboard
+4. **Test Features**: Reports, Control Panel, Employee Management
+
+**Employee User:**
+```
+Username: employee  
+Password: employee123
+```
+1. Navigate to `http://localhost:5173/checkpoint`
+2. **Verify**: Login form appears (employee routes are protected)
+3. Login with employee credentials  
+4. **Verify**: Access to checkpoint functionality
+
+#### 🎫 **4. Complete Check-in Flow**
+
+**Visitor Check-in:**
+1. Go to gate details page
+2. Select "Visitor" tab
+3. Choose zone with `availableForVisitors > 0`
+4. Click "GO" button
+5. **Verify**: 
+   - POST request to `/tickets/checkin` with `{gateId, zoneId, type: "visitor"}`
+   - Success: Ticket modal appears with ticket ID, timestamp, zone info
+   - Zone availability decreases by 1
+   - WebSocket broadcasts zone-update
+
+**Subscriber Check-in:**
+1. Select "Subscriber" tab
+2. Enter test subscription ID (check backend for seeded data)
+3. Click "Verify" → Should show subscription details
+4. Select compatible zone (matching category)
+5. Click "GO"
+6. **Verify**: POST request includes `subscriptionId`
+
+#### 📊 **5. Checkpoint - Ticket Breakdown Display**
+
+1. Navigate to `/checkpoint`
+2. Login as employee
+3. Enter valid ticket ID (from previous check-in)
+4. **Verify Display Shows:**
+   - Ticket information (ID, type, timestamps)
+   - Duration calculation
+   - Rate breakdown (base rate, special rate if applicable)
+   - Total amount
+   - Zone and gate information
+5. **Test Subscriber Conversion:**
+   - For subscriber tickets: "Convert to Visitor" option
+   - Verify breakdown changes when converted
+
+#### 🔧 **6. Admin Real-time Updates**
+
+1. **Window 1**: Admin Control Panel (`/admin/control`)
+2. **Window 2**: Gate details page
+3. **Test Actions:**
+   - In Window 1: Toggle zone open/close
+   - **Verify**: Window 2 shows zone status change immediately
+   - In Window 1: Update category rates  
+   - **Verify**: Window 2 shows new rates
+   - **Verify**: Admin audit log shows actions with timestamps
+
+#### 📱 **7. Responsive Design Test**
+
+1. **Desktop**: Full layout with all information visible
+2. **Mobile**: 
+   - Navigate on mobile device or DevTools mobile view
+   - **Verify**: 
+     - Zone cards stack properly
+     - Header information reorganizes
+     - Buttons remain accessible
+     - Touch interactions work
+
+#### ⚠️ **8. Error Handling**
+
+**Test Error States:**
+1. **Network Errors**: Disconnect internet, verify error messages
+2. **Invalid Subscription**: Enter non-existent subscription ID
+3. **Unauthorized Access**: Try accessing admin routes without login
+4. **WebSocket Disconnection**: Kill WebSocket, verify "Disconnected" status
+5. **409 Conflict**: Try check-in to full zone (if available)
+
+### Test Data Requirements
+
+**Backend should provide:**
+- Multiple gates with different zone configurations
+- Zones with varying availability (0, >0)
+- Closed zones (`open: false`)
+- Active subscriptions with different categories
+- Seeded admin and employee users
+- WebSocket server running on configured port
+
+### Expected Test Results
+
+✅ **Zone Selection**: Only available zones selectable for visitors  
+✅ **GO Button**: Disabled when no zone selected  
+✅ **Real-time**: Immediate updates via WebSocket  
+✅ **Authentication**: Proper role-based access control  
+✅ **Error Handling**: User-friendly error messages  
+✅ **Responsive**: Works on all screen sizes
 
 ## 🚀 Deployment
 

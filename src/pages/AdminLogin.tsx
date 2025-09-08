@@ -1,19 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import LoginForm from '../components/Auth/LoginForm';
-import { useAuthStore } from '../store/auth';
 
 const AdminLogin: React.FC = () => {
 	const navigate = useNavigate();
-	const { user } = useAuthStore();
 
 	const handleSuccess = () => {
-		// Navigate to the admin dashboard after login
-		if (user?.role === 'admin') {
-			navigate('/admin');
-		} else {
-			navigate('/');
-		}
+		// Always navigate to admin dashboard from admin login page
+		// The admin login page should only be accessible to admin users
+		navigate('/admin');
 	};
 
 	return (
