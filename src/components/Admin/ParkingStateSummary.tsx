@@ -20,7 +20,6 @@ interface ParkingStateSummaryProps {
 const ParkingStateSummary: React.FC<ParkingStateSummaryProps> = ({ zones }) => {
   const totalSlots = zones.reduce((sum, zone) => sum + zone.totalSlots, 0);
   const totalOccupied = zones.reduce((sum, zone) => sum + zone.occupied, 0);
-  const totalFree = zones.reduce((sum, zone) => sum + zone.free, 0);
   const totalReserved = zones.reduce((sum, zone) => sum + zone.reserved, 0);
   const totalAvailableForVisitors = zones.reduce((sum, zone) => sum + zone.availableForVisitors, 0);
   const totalAvailableForSubscribers = zones.reduce((sum, zone) => sum + zone.availableForSubscribers, 0);

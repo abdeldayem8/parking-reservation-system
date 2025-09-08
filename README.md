@@ -73,17 +73,17 @@ src/
 └── index.css            # Global styles
 ```
 
-## 🚀 Installation & Setup
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
-- Backend API server running
+- **Node.js** v16 or higher
+- **npm** or **yarn**
+- **Backend API** server running (see backend setup)
 
-### Installation Steps
+### Installation & Setup
 
-1. **Clone the repository**
+1. **Clone and navigate**
    ```bash
    git clone <repository-url>
    cd parking-frontend
@@ -92,28 +92,98 @@ src/
 2. **Install dependencies**
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. **Environment Configuration**
+3. **Environment setup**
    
-   Create a `.env` file in the root directory:
+   Create `.env.local` file in the project root:
    ```env
-   VITE_API_BASE_URL=http://localhost:3000
-   VITE_WS_URL=ws://localhost:3000
+   VITE_API_URL=http://localhost:3000/api/v1
+   VITE_WS_URL=ws://localhost:3000/api/v1/ws
    ```
 
-4. **Start the development server**
+4. **Start development server**
    ```bash
    npm run dev
-   # or
-   yarn dev
    ```
 
-5. **Open your browser**
+5. **Access the application**
+   ```
+   🌐 Frontend: http://localhost:5173
+   📡 API: http://localhost:3000/api/v1
+   🔌 WebSocket: ws://localhost:3000/api/v1/ws
+   ```
+
+### Available Scripts
+
+```bash
+# Development
+npm run dev          # Start dev server with hot reload
+npm run build        # Build for production
+npm run preview      # Preview production build
+
+# Testing
+npm test             # Run Jest test suite
+npm run test:watch   # Run tests in watch mode
+
+# Code Quality
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
+```
+
+### 🔧 Backend Setup Required
+
+**The frontend requires a running backend server. Ensure:**
+
+1. **Backend API** is running on `http://localhost:3000`
+2. **WebSocket server** is available at `ws://localhost:3000`
+3. **Database** is seeded with test data
+4. **CORS** is configured for `http://localhost:5173`
+
+**Test Credentials:**
+```
+Admin:    admin / admin123
+Employee: employee / employee123
+```
+
+### 🚨 Troubleshooting
+
+**Common Issues:**
+
+1. **"Network Error" / API calls failing**
+   ```bash
+   # Check if backend is running
+   curl http://localhost:3000/api/v1/master/gates
    
-   Navigate to `http://localhost:5173` to view the application.
+   # Verify environment variables
+   cat .env.local
+   ```
+
+2. **WebSocket connection failed**
+   ```bash
+   # Check WebSocket endpoint
+   # Open DevTools → Network → WS tab
+   # Should see connection to ws://localhost:3000/api/v1/ws
+   ```
+
+3. **Login fails with 401**
+   ```bash
+   # Ensure backend database is seeded with test users
+   # Check backend logs for authentication errors
+   ```
+
+4. **Build errors**
+   ```bash
+   # Clear node_modules and reinstall
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+5. **Port 5173 already in use**
+   ```bash
+   # Kill existing process or use different port
+   npm run dev -- --port 3001
+   ```
 
 ## 🔧 API Usage
 
@@ -422,15 +492,8 @@ Password: employee123
 4. **WebSocket Disconnection**: Kill WebSocket, verify "Disconnected" status
 5. **409 Conflict**: Try check-in to full zone (if available)
 
-### Test Data Requirements
 
-**Backend should provide:**
-- Multiple gates with different zone configurations
-- Zones with varying availability (0, >0)
-- Closed zones (`open: false`)
-- Active subscriptions with different categories
-- Seeded admin and employee users
-- WebSocket server running on configured port
+
 
 ### Expected Test Results
 
@@ -440,6 +503,10 @@ Password: employee123
 ✅ **Authentication**: Proper role-based access control  
 ✅ **Error Handling**: User-friendly error messages  
 ✅ **Responsive**: Works on all screen sizes
+
+
+
+
 
 ## 🚀 Deployment
 
@@ -454,8 +521,8 @@ yarn build
 ### Environment Variables for Production
 
 ```env
-VITE_API_BASE_URL=https://your-api-domain.com
-VITE_WS_URL=wss://your-api-domain.com
+VITE_API_BASE_URL=http://localhost:3000/api/v1
+VITE_WS_URL=ws://localhost:3000/api/v1/ws
 ```
 
 ## 📝 Development Notes
@@ -474,18 +541,7 @@ VITE_WS_URL=wss://your-api-domain.com
 - Offline caching for zone states (future enhancement)
 - Additional test coverage needed
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
-## 📄 License
 
-This project is licensed under the MIT License.
 
-## 🆘 Support
-
-For support and questions, please contact the development team or create an issue in the repository.
